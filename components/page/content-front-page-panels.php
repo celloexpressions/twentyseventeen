@@ -5,18 +5,9 @@
  * @package Twenty Seventeen
  */
 
-global $twentyseventeencounter;
-
-$current_panel_layout = 'twentyseventeen_panel' . $twentyseventeencounter . '_layout';
-$panel_layout = get_theme_mod( $current_panel_layout, 'one-column' );
-
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'twentyseventeen-panel ' . esc_attr( $panel_layout ) ); ?> >
-
-	<span class="panel twentyseventeen-panel<?php echo esc_attr( $twentyseventeencounter ); ?>" id="panel<?php echo esc_attr( $twentyseventeencounter ); ?>">
-		<span class="twentyseventeen-panel-title"><?php printf( __( 'Panel %1$s', 'twentyseventeen' ), esc_attr( $twentyseventeencounter ) ); ?></span>
-	</span>
+<article id="post-<?php the_ID(); ?>" <?php post_class( 'twentyseventeen-panel' ); ?> >
 
 	<?php if ( has_post_thumbnail() ) :
 		$thumbnail = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'twentyseventeen-featured-image' );

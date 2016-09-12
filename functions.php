@@ -48,8 +48,9 @@ function twentyseventeen_setup() {
 
 	// This theme uses wp_nav_menu() in one location.
 	register_nav_menus( array(
-		'top'     => __( 'Top', 'twentyseventeen' ),
-		'social'  => __( 'Social Links Menu', 'twentyseventeen' ),
+		'top'        => __( 'Top', 'twentyseventeen' ),
+		'social'     => __( 'Social Links Menu', 'twentyseventeen' ),
+		'front-page' => __( 'Front Page Content', 'twentyseventeen' ),
 	) );
 
 	/*

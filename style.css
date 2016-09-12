@@ -1970,6 +1970,7 @@ object {
 
 .twentyseventeen-customizer.twentyseventeen-front-page .twentyseventeen-panel {
 	/* Colour-code all panels (add 1 to account for #twentyseventeen-hero, so 2 is actually panel 1)*/
+	clear: both;
 }
 
 .twentyseventeen-customizer.twentyseventeen-front-page .twentyseventeen-panel::after {
@@ -2688,4 +2689,16 @@ article.panel-placeholder {
 	.custom-header-image {
 		margin-top: 0 !important; /* !important to override styles added by JavaScript */
 	}
+}
+
+/**
+ * Temporary CSS for front page demonstration.
+ */
+.post-grid-content article {
+	width: 20%;
+	float: left;
+}
+
+.section-title {
+	text-align: center;
 }

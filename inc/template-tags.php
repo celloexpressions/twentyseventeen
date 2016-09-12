@@ -170,3 +170,135 @@ function twentyseventeen_category_transient_flusher() {
 }
 add_action( 'edit_category', 'twentyseventeen_category_transient_flusher' );
 add_action( 'save_post',     'twentyseventeen_category_transient_flusher' );
+
+
+/**
+ * Display custom front page featured content.
+ *
+ * @todo consider including a generic filterable (for the template parts) version of this walker in core to facilitate similar behavior in other themes.
+ *
+ * @since Twenty Seventeen 1.0
+ * @uses Walker_Nav_Menu
+ */
+class Front_Page_Content_Walker extends Walker_Nav_Menu {
+	
+	// Unused when depth is 0.
+	// @todo docs
+	function start_lvl( &$output, $depth = 0, $args = array() ) {
+		$output .= '<div class="front-content-container">';
+	}
+
+	// Unused when depth is 0.
+	// @todo docs
+	function end_lvl( &$output, $depth = 0, $args = array() ) {
+		$output .= '</div>';
+	}
+
+	/**
+	 * Start the element output.
+	 *
+	 * @see Nav_Menu_Walker::start_el()
+	 *
+	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param object $item   Menu item data object.
+	 * @param int    $depth  Depth of menu item. Used for padding.
+	 * @param array  $args   An array of arguments. @see wp_nav_menu()
+	 * @param int    $id     Current item ID.
+	 */
+	 public function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
+
+		if ( 'custom' === $item->type ) {
+			// Custom links can't be displayed in this menu.
+			// @todo way to prevent custom links from being added here in core.
+			return;
+		}
+		
+		/** This filter is documented in wp-includes/nav-menu.php */
+		$id = apply_filters( 'nav_menu_item_id', 'menu-item-'. $item->ID, $item, $args, $depth );
+		$id = $id ? ' id="' . esc_attr( $id ) . '"' : '';
+
+		/** This filter is documented in wp-includes/post-template.php */
+		$title = apply_filters( 'the_title', $item->title, $item->ID );
+
+		if ( 'taxonomy' === $item->type ) {
+			// Show recent posts in the taxonomy.
+			// @todo design this for Twenty Seventeen, including number of posts and content desired, and CSS.
+			$term_id = $item->object_id;
+			$taxonomy = $item->object;
+
+			$term = get_term( $term_id, $taxonomy );
+
+			if ( $term ) {
+				// Query for posts in this term. Supports any taxonomy and post type.
+				$posts = get_posts( array(
+					'numberposts'      => 5, // @todo design for Twenty Seventeen
+					'suppress_filters' => false,
+					'post_type'        => 'any',
+					'tax_query'        => array(
+						array(
+							'field'    => 'term_id',
+							'taxonomy' => $taxonomy,
+							'terms'    => $term->term_id,
+						),
+					),
+				) );
+
+				if ( $posts ) {
+					global $post; 
+					ob_start(); // @todo consider moving this to a template part.
+					?>
+
+					<section id="<?php echo $id; ?>" class="post-grid-container term-<?php echo $term->slug; ?> taxonomy-<?php echo $taxonomy; ?>">
+						<header class="<?php echo $term->slug; ?> title">
+							<h2 class="section-title"><a href="<?php echo get_term_link( $term, $taxonomy ); ?>"><?php echo $title; ?></a></h2>
+						</header>
+						<div class="post-grid-content">
+						<?php foreach( $posts as $post ) {
+							setup_postdata( $post ); // Allows the_* functions to work without passing an ID.
+							get_template_part( 'components/page/content', 'front-page-panels-grid' ); // @todo design the different template part used here, for a grid view
+																									 // This will probably show the featured image with the title and link them.
+						} ?>
+						</div>
+					</section>
+
+					<?php
+					$output .= ob_get_clean();
+				}
+
+			}
+		} elseif ( 'post_type' === $item->type ) {
+
+			// Show the posts object.
+			// @todo design this for Twenty Seventeen. Note that the menu item fields (description, etc.) are available in addition to the post's fields.
+			$post_id = $item->object_id;
+			$post_type = $item->object;
+
+			global $post; 
+			$post = get_post( $post_id );
+
+			if ( $post ) {
+				setup_postdata( $post ); // Allows the_* functions to work without passing an ID.
+				ob_start();
+
+				get_template_part( 'components/page/content', 'front-page-panels' );
+				$output .= ob_get_clean();
+			}
+
+		}
+	}
+
+	/**
+	 * Ends the element output.
+	 *
+	 * @see Walker_Nav_Menu::end_el()
+	 *
+	 * @param string $output Passed by reference. Used to append additional content.
+	 * @param object $item   Page data object. Not used.
+	 * @param int    $depth  Depth of page. Not Used.
+	 * @param array  $args   An array of arguments. @see wp_nav_menu()
+	 */
+	public function end_el( &$output, $item, $depth = 0, $args = array() ) {
+		//$output .= '</div>';
+	}
+}
+
